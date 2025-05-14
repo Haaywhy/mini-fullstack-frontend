@@ -8,7 +8,7 @@ function Signup() {
 
   const handleSignup = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/signup`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
