@@ -14,15 +14,15 @@ function Dashboard() {
       return;
     }
 
-    fetch('http://localhost:8000/dashboard', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    fetch("https://mini-fullstack-backend-1.onrender.com/users", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+})
       .then(async (res) => {
         if (res.ok) {
           const data = await res.json();
-          setUsers(data.users);
+          setUsers(data.users.map(u => ({ id: u.id, username: u.username }))); 
         } else {
           const err = await res.json();
           alert(err.detail || 'Unauthorized, please login again');
@@ -42,11 +42,16 @@ function Dashboard() {
       <label>All Users:</label><br />
       <select>
         {users.map((user, index) => (
-          <option key={index}>{user}</option>
+          <option key={index}>{user.username}</option>
         ))}
       </select>
       <br /><br />
-      <button onClick={() => navigate('/login')}>Logout</button>
+      <button onClick={() => {
+        localStorage.removeItem('token');
+        navigate('/login');
+      }}>
+        Logout
+      </button>
     </div>
   );
 }
