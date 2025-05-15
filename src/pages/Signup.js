@@ -7,9 +7,13 @@ function Signup() {
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    try {
-      const response = await fetch("https://mini-fullstack-backend-1.onrender.com/signup", {
+    if (!username || !password) {
+      alert('Username and password are required.');
+      return;
+    }
 
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -25,8 +29,8 @@ function Signup() {
         alert(data.detail || 'Signup failed');
       }
     } catch (error) {
-      alert('Error signing up');
-      console.error(error);
+      alert('Network error. Please try again.');
+      console.error('Signup error:', error);
     }
   };
 
