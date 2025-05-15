@@ -7,7 +7,7 @@ function Dashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log(token)
+    console.log(token);
 
     if (!token) {
       alert('No token found. Please login again.');
@@ -21,11 +21,16 @@ function Dashboard() {
       },
     })
       .then(async (res) => {
-        console.log(res)
         if (res.ok) {
           const data = await res.json();
-          console.log(data)
-          setUsers(data.map(u => ({ id: u.id, username: u.username })));
+          console.log("Fetched data:", data);
+
+          // Fix: Make sure to access `data.users`
+          if (Array.isArray(data.users)) {
+            setUsers(data.users.map(u => ({ id: u.id, username: u.username })));
+          } else {
+            throw new Error("Invalid response format");
+          }
         } else {
           const err = await res.json();
           alert(err.detail || 'Unauthorized, please login again');
@@ -35,7 +40,6 @@ function Dashboard() {
       .catch((err) => {
         console.error('Fetch error:', err);
         alert('An error occurred. Please try again.');
-        //navigate('/login');
       });
   }, [navigate]);
 
@@ -44,8 +48,8 @@ function Dashboard() {
       <h2>Dashboard</h2>
       <label>All Users:</label><br />
       <select>
-        {users.map((user, index) => (
-          <option key={index}>{user.username}</option>
+        {users.map((user) => (
+          <option key={user.id}>{user.username}</option>
         ))}
       </select>
       <br /><br />
