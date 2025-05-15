@@ -8,7 +8,8 @@ function Signup() {
 
   const handleSignup = async () => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/signup`, {
+      const response = await fetch("https://mini-fullstack-backend-1.onrender.com/signup", {
+
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
