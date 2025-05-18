@@ -10,7 +10,7 @@ function Login() {
     try {
       console.log(username)
       console.log(password)
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/login`, {
+      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
