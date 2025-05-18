@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Signup() {
+  const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    if (!username || !password) {
-      alert('Username and password are required.');
+    if (!fullName || !username || !password) {
+      alert("Full name, username, and password are required.");
       return;
     }
 
@@ -18,7 +19,7 @@ function Signup() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ full_name: fullName, username, password }),
       });
 
       if (response.ok) {
@@ -26,17 +27,31 @@ function Signup() {
         navigate('/login');
       } else {
         const data = await response.json();
-        alert(data.detail || 'Signup failed');
+        console.error('Signup error:', data);
+
+        // Handle FastAPI-style validation error messages
+        if (Array.isArray(data.detail)) {
+          const messages = data.detail.map(d => d.msg).join(', ');
+          alert(`Signup error: ${messages}`);
+        } else {
+          alert(data.detail || 'Signup failed');
+        }
       }
     } catch (error) {
       alert('Network error. Please try again.');
-      console.error('Signup error:', error);
+      console.error('Signup exception:', error);
     }
   };
 
   return (
     <div className="container">
       <h2>Signup</h2>
+      <input
+        type="text"
+        placeholder="Full Name"
+        value={fullName}
+        onChange={(e) => setFullName(e.target.value)}
+      /><br />
       <input
         type="text"
         placeholder="Username"

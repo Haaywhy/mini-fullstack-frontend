@@ -14,7 +14,7 @@ function Dashboard() {
       return;
     }
 
-    fetch("https://mini-fullstack-backend-1.onrender.com/users", {
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -23,7 +23,7 @@ function Dashboard() {
         if (res.ok) {
           const data = await res.json();
           console.log(data);
-          setUsers(data.users.map(u => ({ id: u.id, username: u.username })));
+          setUsers(data); // backend already returns [{ id, username, full_name }]
         } else {
           const err = await res.json();
           alert(err.detail || 'Unauthorized, please login again');
@@ -41,8 +41,10 @@ function Dashboard() {
       <h2>Dashboard</h2>
       <label>All Users:</label><br />
       <select>
-        {users.map((user, index) => (
-          <option key={index}>{user.username}</option>
+        {users.map((user) => (
+          <option key={user.id}>
+            {user.full_name} ({user.username})
+          </option>
         ))}
       </select>
       <br /><br />
