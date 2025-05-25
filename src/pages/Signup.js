@@ -5,11 +5,12 @@ function Signup() {
   const [fullName, setFullName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('user');
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    if (!fullName || !username || !password) {
-      alert("Full name, username, and password are required.");
+    if (!fullName || !username || !password || !role) {
+      alert("Full name, username, password, and role are required.");
       return;
     }
 
@@ -19,7 +20,7 @@ function Signup() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ full_name: fullName, username, password }),
+        body: JSON.stringify({ full_name: fullName, username, password, role }),
       });
 
       if (response.ok) {
@@ -28,7 +29,6 @@ function Signup() {
       } else {
         const data = await response.json();
         console.error('Signup error:', data);
-
         if (Array.isArray(data.detail)) {
           const messages = data.detail.map(d => d.msg).join(', ');
           alert(`Signup error: ${messages}`);
@@ -63,6 +63,11 @@ function Signup() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       /><br />
+      <select value={role} onChange={(e) => setRole(e.target.value)}>
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+        <option value="superadmin">Super Admin</option>
+      </select><br /><br />
       <button onClick={handleSignup}>Sign Up</button>
       <br /><br />
       <button onClick={() => navigate('/login')}>Back to Login</button>
