@@ -23,11 +23,16 @@ function Signup() {
         body: JSON.stringify({ full_name: fullName, username, password, role }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        alert('Signup successful! Please wait for admin approval before logging in.');
+        if (role === "superadmin") {
+          alert("Superadmin created and automatically activated. You can now log in.");
+        } else {
+          alert("Signup successful! Please wait for admin approval before logging in.");
+        }
         navigate('/login');
       } else {
-        const data = await response.json();
         console.error('Signup error:', data);
         if (Array.isArray(data.detail)) {
           const messages = data.detail.map(d => d.msg).join(', ');
@@ -66,10 +71,9 @@ function Signup() {
       <select value={role} onChange={(e) => setRole(e.target.value)}>
         <option value="user">User</option>
         <option value="admin">Admin</option>
-        <option value="superadmin">Super Admin</option>
+        <option value="superadmin">Superadmin</option>
       </select><br /><br />
-      <button onClick={handleSignup}>Sign Up</button>
-      <br /><br />
+      <button onClick={handleSignup}>Sign Up</button><br /><br />
       <button onClick={() => navigate('/login')}>Back to Login</button>
     </div>
   );
