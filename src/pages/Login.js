@@ -8,8 +8,6 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      console.log(username)
-      console.log(password)
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/token`, {
         method: 'POST',
         headers: {
@@ -18,13 +16,18 @@ function Login() {
         body: new URLSearchParams({ username, password }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
+        if (!data.is_active) {
+          alert("Your account is not yet activated. Please contact an admin.");
+          return;
+        }
+
         localStorage.setItem('token', data.access_token);
-        console.log(data.access_token)
+        localStorage.setItem('user_role', data.role); // Save role for RBAC
         navigate('/dashboard');
       } else {
-        const data = await response.json();
         alert(data.detail || 'Login failed');
       }
     } catch (error) {

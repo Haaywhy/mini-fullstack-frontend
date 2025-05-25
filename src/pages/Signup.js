@@ -23,13 +23,12 @@ function Signup() {
       });
 
       if (response.ok) {
-        alert('Signup successful! Please log in.');
+        alert('Signup successful! Please wait for admin approval before logging in.');
         navigate('/login');
       } else {
         const data = await response.json();
         console.error('Signup error:', data);
 
-        // Handle FastAPI-style validation error messages
         if (Array.isArray(data.detail)) {
           const messages = data.detail.map(d => d.msg).join(', ');
           alert(`Signup error: ${messages}`);
