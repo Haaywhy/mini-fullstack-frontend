@@ -9,8 +9,8 @@ function Signup() {
   const navigate = useNavigate();
 
   const handleSignup = async () => {
-    if (!fullName || !username || !password || !role) {
-      alert("Full name, username, password, and role are required.");
+    if (!fullName || !username || !password) {
+      alert("Full name, username, and password are required.");
       return;
     }
 
@@ -26,14 +26,9 @@ function Signup() {
       const data = await response.json();
 
       if (response.ok) {
-        if (role === "superadmin") {
-          alert("Superadmin created and automatically activated. You can now log in.");
-        } else {
-          alert("Signup successful! Please wait for admin approval before logging in.");
-        }
+        alert(data.msg);
         navigate('/login');
       } else {
-        console.error('Signup error:', data);
         if (Array.isArray(data.detail)) {
           const messages = data.detail.map(d => d.msg).join(', ');
           alert(`Signup error: ${messages}`);
@@ -73,7 +68,8 @@ function Signup() {
         <option value="admin">Admin</option>
         <option value="superadmin">Superadmin</option>
       </select><br /><br />
-      <button onClick={handleSignup}>Sign Up</button><br /><br />
+      <button onClick={handleSignup}>Sign Up</button>
+      <br /><br />
       <button onClick={() => navigate('/login')}>Back to Login</button>
     </div>
   );
