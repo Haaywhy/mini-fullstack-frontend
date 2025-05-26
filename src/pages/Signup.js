@@ -20,7 +20,12 @@ function Signup() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ full_name: fullName, username, password, role }),
+        body: JSON.stringify({
+          full_name: fullName,
+          username,
+          password,
+          role,
+        }),
       });
 
       const data = await response.json();
