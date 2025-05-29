@@ -18,27 +18,36 @@ function Login() {
     data.append("password", password);
 
     try {
-      const response = await axios.post("http://localhost:8000/token", data, {
+      // Step 1: Get token
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/token`, data, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
 
-      const { access_token, role, is_active } = response.data;
+      const { access_token } = response.data;
+      localStorage.setItem("token", access_token);
 
-      if (!is_active) {
+      // Step 2: Fetch user details with token
+      const userResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/me`, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      });
+
+      const user = userResponse.data;
+      localStorage.setItem("role", user.role);
+
+      if (!user.is_active) {
         setError("Account not activated. Contact an admin.");
         return;
       }
 
-      localStorage.setItem("token", access_token);
-      localStorage.setItem("role", role);
-
-      // 🔁 Redirect based on role
-      if (role === "superadmin") {
+      // Step 3: Redirect based on role
+      if (user.role === "superadmin") {
         navigate("/superadmin");
-      } else if (role === "admin") {
-        navigate("/admin");
+      } else if (user.role === "admin") {
+        navigate("/admin"); // Optional: create this page later
       } else {
         navigate("/dashboard");
       }
