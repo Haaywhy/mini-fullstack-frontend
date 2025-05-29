@@ -1,59 +1,74 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// frontend/src/pages/Login.js
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    const data = new URLSearchParams();
+    data.append("username", username);
+    data.append("password", password);
+
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/token`, {
-        method: 'POST',
+      const response = await axios.post("http://localhost:8000/token", data, {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({ username, password }),
       });
 
-      const data = await response.json();
+      const { access_token, role, is_active } = response.data;
 
-      if (response.ok) {
-        if (!data.is_active) {
-          alert("Your account is not yet activated. Please contact an admin.");
-          return;
-        }
-
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user_role', data.role); // Save role for RBAC
-        navigate('/dashboard');
-      } else {
-        alert(data.detail || 'Login failed');
+      if (!is_active) {
+        setError("Account not activated. Contact an admin.");
+        return;
       }
-    } catch (error) {
-      alert('Error logging in');
-      console.error(error);
+
+      localStorage.setItem("token", access_token);
+      localStorage.setItem("role", role);
+
+      // 🔁 Redirect based on role
+      if (role === "superadmin") {
+        navigate("/superadmin");
+      } else if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError("Login failed. Check your credentials.");
     }
   };
 
   return (
-    <div className="container">
+    <div>
       <h2>Login</h2>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      /><br />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      /><br />
-      <button onClick={handleLogin}>Login</button>
-      <br /><br />
-      <button onClick={() => navigate('/')}>Back to Signup</button>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        /><br />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        /><br />
+        <button type="submit">Login</button>
+      </form>
     </div>
   );
 }
