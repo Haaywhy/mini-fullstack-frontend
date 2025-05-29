@@ -1,7 +1,6 @@
 // frontend/src/pages/Login.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -13,29 +12,41 @@ function Login() {
     e.preventDefault();
     setError("");
 
-    const data = new URLSearchParams();
-    data.append("username", username);
-    data.append("password", password);
+    const formData = new URLSearchParams();
+    formData.append("username", username);
+    formData.append("password", password);
 
     try {
       // Step 1: Get token
-      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/token`, data, {
+      const tokenResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/token`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
+        body: formData.toString(),
       });
 
-      const { access_token } = response.data;
+      if (!tokenResponse.ok) {
+        throw new Error("Invalid credentials");
+      }
+
+      const tokenData = await tokenResponse.json();
+      const access_token = tokenData.access_token;
       localStorage.setItem("token", access_token);
 
       // Step 2: Fetch user details with token
-      const userResponse = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/me`, {
+      const userResponse = await fetch(`${process.env.REACT_APP_API_BASE_URL}/me`, {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
       });
 
-      const user = userResponse.data;
+      if (!userResponse.ok) {
+        throw new Error("Failed to fetch user details");
+      }
+
+      const user = await userResponse.json();
       localStorage.setItem("role", user.role);
 
       if (!user.is_active) {
@@ -47,7 +58,7 @@ function Login() {
       if (user.role === "superadmin") {
         navigate("/superadmin");
       } else if (user.role === "admin") {
-        navigate("/admin"); // Optional: create this page later
+        navigate("/admin");
       } else {
         navigate("/dashboard");
       }

@@ -1,64 +1,86 @@
-// frontend/src/pages/Superadmin.js
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const Superadmin = () => {
+function Superadmin() {
   const [users, setUsers] = useState([]);
-  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/users", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const pendingUsers = response.data.filter(user => !user.is_active);
-        setUsers(pendingUsers);
-      } catch (error) {
-        console.error("Failed to fetch users:", error.response?.data || error.message);
-      }
-    };
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
 
-    fetchUsers();
-  }, [token]);
+    fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => setUsers(data))
+      .catch(err => {
+        console.error(err);
+        alert("Failed to fetch users.");
+        navigate('/login');
+      });
+  }, [navigate]);
 
-  const activateUser = async (username) => {
-    try {
-      const response = await axios.put(
-        `http://localhost:8000/admin/activate-user/${username}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      alert(response.data.msg);
-      setUsers(users.filter(user => user.username !== username));
-    } catch (error) {
-      alert(error.response?.data?.detail || "Failed to activate user");
+  const handleActivate = async (userId) => {
+    const token = localStorage.getItem('token');
+    const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/activate/${userId}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert('User activated');
+      window.location.reload();
+    } else {
+      alert(data.detail || 'Activation failed');
     }
   };
 
   return (
     <div>
-      <h2>Pending User Activations</h2>
-      {users.length === 0 ? (
-        <p>No pending users.</p>
-      ) : (
-        <ul>
+      <h2>Superadmin Panel</h2>
+      <table border="1" cellPadding="8">
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
           {users.map(user => (
-            <li key={user.username}>
-              {user.full_name} ({user.role}) - {user.username}
-              <button onClick={() => activateUser(user.username)}>Activate</button>
-            </li>
+            <tr key={user.id}>
+              <td>{user.full_name}</td>
+              <td>{user.username}</td>
+              <td>{user.role}</td>
+              <td>{user.is_active ? '✅' : '❌'}</td>
+              <td>
+                {!user.is_active && (
+                  <button onClick={() => handleActivate(user.id)}>Activate</button>
+                )}
+              </td>
+            </tr>
           ))}
-        </ul>
-      )}
+        </tbody>
+      </table>
+      <br />
+      <button onClick={() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('role');
+        navigate('/login');
+      }}>
+        Logout
+      </button>
     </div>
   );
-};
+}
 
 export default Superadmin;
