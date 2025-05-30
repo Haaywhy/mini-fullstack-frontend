@@ -35,24 +35,25 @@ function Superadmin() {
 
     const data = await res.json();
     if (res.ok) {
-      alert('User activated');
-      window.location.reload();
+      alert('User activated successfully.');
+      // Refresh the list
+      setUsers(users.map(user => user.id === userId ? { ...user, is_active: true } : user));
     } else {
-      alert(data.detail || 'Activation failed');
+      alert(data.detail || 'Activation failed.');
     }
   };
 
   return (
     <div>
-      <h2>Superadmin Panel</h2>
-      <table border="1" cellPadding="8">
+      <h2>Superadmin Dashboard</h2>
+      <table border="1" cellPadding="8" style={{ borderCollapse: "collapse" }}>
         <thead>
           <tr>
             <th>Full Name</th>
             <th>Username</th>
             <th>Roles</th>
             <th>Status</th>
-            <th>Actions</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -61,7 +62,7 @@ function Superadmin() {
               <td>{user.full_name}</td>
               <td>{user.username}</td>
               <td>{user.role}</td>
-              <td>{user.is_active ? '✅' : '❌'}</td>
+              <td>{user.is_active ? '✅ Active' : '❌ Inactive'}</td>
               <td>
                 {!user.is_active && (
                   <button onClick={() => handleActivate(user.id)}>Activate</button>
@@ -71,7 +72,9 @@ function Superadmin() {
           ))}
         </tbody>
       </table>
+
       <br />
+
       <button onClick={() => {
         localStorage.removeItem('token');
         localStorage.removeItem('role');
