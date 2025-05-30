@@ -50,7 +50,7 @@ function Superadmin() {
           <tr>
             <th>Full Name</th>
             <th>Username</th>
-            <th>Role</th>
+            <th>Roles</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
