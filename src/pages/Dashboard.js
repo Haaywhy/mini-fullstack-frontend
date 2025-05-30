@@ -18,9 +18,7 @@ function Dashboard() {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
-      .then(user => {
-        setCurrentUser(user);
-      });
+      .then(user => setCurrentUser(user));
 
     fetch(`${process.env.REACT_APP_API_BASE_URL}/users`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -41,20 +39,20 @@ function Dashboard() {
       });
   }, [navigate]);
 
-  const handleActivate = async (userId) => {
+  const handleActivate = async (username) => {
     const token = localStorage.getItem('token');
-    const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/activate/${userId}`, {
-      method: 'POST',
+    const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/admin/activate-user/${username}`, {
+      method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`
       }
     });
 
-    const data = await res.json();
     if (res.ok) {
       alert('User activated');
       window.location.reload();
     } else {
+      const data = await res.json();
       alert(data.detail || 'Activation failed');
     }
   };
@@ -93,7 +91,7 @@ function Dashboard() {
             <th>Username</th>
             <th>Role</th>
             <th>Active</th>
-            {isAdmin && <th>Actions</th>}
+            {(isAdmin || isSuperAdmin) && <th>Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -103,11 +101,12 @@ function Dashboard() {
               <td>{user.username}</td>
               <td>{user.role}</td>
               <td>{user.is_active ? "✅" : "❌"}</td>
-              {isAdmin && (
+              {(isAdmin || isSuperAdmin) && (
                 <td>
-                  {!user.is_active && (
-                    <button onClick={() => handleActivate(user.id)}>Activate</button>
-                  )}
+                  {!user.is_active &&
+                    (isSuperAdmin || (isAdmin && user.role === 'user')) && (
+                      <button onClick={() => handleActivate(user.username)}>Activate</button>
+                    )}
                   {" "}
                   {user.username !== currentUser.username && (
                     <button onClick={() => handleDelete(user.id)}>Delete</button>
