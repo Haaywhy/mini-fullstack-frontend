@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import Superadmin from "./pages/Superadmin";
+import SuperadminTemp from "./pages/SuperadminTemp";
 import './App.css';
 
 function App() {
@@ -27,7 +27,7 @@ function App() {
           path="/superadmin"
           element={
             token && role === "superadmin" ? (
-              <Superadmin />
+              <SuperadminTemp />
             ) : (
               <Navigate to="/login" replace />
             )
