@@ -18,9 +18,7 @@ function App() {
 
         <Route
           path="/dashboard"
-          element={
-            token ? <Dashboard /> : <Navigate to="/login" replace />
-          }
+          element={token ? <Dashboard /> : <Navigate to="/login" replace />}
         />
 
         <Route
@@ -34,7 +32,7 @@ function App() {
           }
         />
 
-        {/* Optional fallback route */}
+        {/* Catch-all fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
